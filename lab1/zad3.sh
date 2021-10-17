@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $# == 0 ]
+then
+	exit
+fi
+
 echo "metoda matematyczna $(( $1 ** $2 ))"
 a=$1
 

@@ -1,26 +1,42 @@
 #!/bin/bash
-
 echo "███████╗ ██████╗  █████╗ ██████╗ ███╗   ██╗██╗     ██╗    ██╗     ██╗ ██████╗███████╗██████╗ ███████╗
 ╚══███╔╝██╔════╝ ██╔══██╗██╔══██╗████╗  ██║██║     ██║    ██║     ██║██╔════╝╚══███╔╝██╔══██╗██╔════╝
   ███╔╝ ██║  ███╗███████║██║  ██║██╔██╗ ██║██║     ██║    ██║     ██║██║       ███╔╝ ██████╔╝█████╗  
  ███╔╝  ██║   ██║██╔══██║██║  ██║██║╚██╗██║██║██   ██║    ██║     ██║██║      ███╔╝  ██╔══██╗██╔══╝  
 ███████╗╚██████╔╝██║  ██║██████╔╝██║ ╚████║██║╚█████╔╝    ███████╗██║╚██████╗███████╗██████╔╝███████╗
 ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═══╝╚═╝ ╚════╝     ╚══════╝╚═╝ ╚═════╝╚══════╝╚═════╝ ╚══════╝"
-a=$(($1 + $RANDOM % ($2-$1+1))) #od 5 do 10 lub 1 do 10 lub od 0 do 10
-echo "podaj liczbe"
-read b
-while [ "$a" != "$b" ]
-do
-	if [ "$a" -gt "$b" ]
-	then
-		echo "Liczba szukana jest większa niż $b"
-	fi
 
-	if [ "$a" -le "$b" ]
+if [ $# == 0 ]
+then
+	exit
+fi
+
+i=10
+if [ $2 -gt $1 ]
+then
+	a=$(( ( RANDOM %( $2 - $1 + 1) ) + $1))
+else
+	echo "Max jest mniejszy bądź równy min"
+	exit
+fi
+b=-1
+echo "Podaj liczbe"
+while [ $b != $a ]
+do
+	if [ $i == 0 ]
 	then
-		echo "Liczba szukana jest mniejsza niż $b"
+		echo "PRRZEGRANA! - wykorzystano 10 ruchow"
+		exit
 	fi
-	echo "podaj liczbe"
 	read b
+	if [ "$b" -lt "$a" ]
+	then
+		echo "Liczba szukana jes wieksza"
+	fi
+	if [ "$b" -gt "$a" ]
+	then
+		echo "Liczba szukana jest mniejsza"
+	fi
+	i=$(( $i-1 ))
 done
-echo "Gratulacje zgadłeś liczbę!!!"
+echo "GRATULACJE ZGADŁEŚ LICZBĘ"
