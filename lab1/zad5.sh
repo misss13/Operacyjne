@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#echo "$#"
+#echo "$# liczba argumentow, $@ tablica argumentów, $? jak ma sie ostatnia komenda"
+#iPad=123 $ i=foo $ echo "${!i*}" i iPad#
 
 if [ $# == 0 ]
 then
@@ -9,6 +10,6 @@ fi
 
 for (( i=$#; i>=1; i-- ))
 do
-echo -n "${!i} "
+	echo -n "${!i} "
 done
 echo

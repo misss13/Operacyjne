@@ -5,6 +5,8 @@ then
 	exit
 fi
 
+#/etc/ImageMagick-7/policy.xml
+
 convert -quiet -density 600 $1 -resize 25% pom.png
 composite -quiet -gravity center -geometry +$3-$4 $2 pom.png result.png
 convert -quiet result.png dokument1.pdf
