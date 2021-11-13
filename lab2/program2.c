@@ -3,22 +3,13 @@
 #include <stdlib.h>
 #include <signal.h>
 
-// Define the function to be called when ctrl-c (SIGINT) signal is sent to process
-void
-signal_callback_handler(int signum)
-{
-   printf("Caught signal %d\n",signum);
-   // Cleanup and close up stuff here
-
-   // Terminate program
+void signal_callback_handler(int signum){
+   printf("\nzłapałem sygnał  %d\n",signum);
    exit(signum);
 }
 
-int main()
-{
-   // Register signal and signal handler
-   signal(SIGINT, signal_callback_handler);
-
+int main(){
+   signal(SIGQUIT, signal_callback_handler);
    while(1)
    {
       printf("Program processing stuff here.\n");
