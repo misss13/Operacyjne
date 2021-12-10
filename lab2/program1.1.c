@@ -23,13 +23,19 @@ int main(){
 	}
 	else if (pid == 0){
 	printf("I'm child process\n my pid: %d\nmy ppid: %d\n", getpid(), getppid());
+
+  glob_dyn[0]=0;
+  glob_stat=0;
+  lok_stat=0;
+  lok_dyn[0]=0;
+
 	scanf("%s", a);
 	fputs("child open file\n", plik);
 	fclose(plik);
 	}
 	else {
 	wait(NULL);
-	printf("I'm parent process my pid: %d\n", getpid());
+	printf("I'm parent process my pid: %d\n my ppid: %d\n", getpid(), getppid());
 	scanf("%d", &b);
 	fputs("rodzic\n", plik);
 
@@ -38,10 +44,15 @@ int main(){
 	printf("globalna dynamiczna = %d\n", glob_dyn[0]);
 	printf("lokalna statyczna = %d\n", lok_stat);
 	printf("lokalna dynamiczna = %d\n", lok_dyn[0]);
-	}
-
-	fclose(plik);
-	free(glob_dyn);
-	free(lok_dyn);
+  fclose(plik);
+  free(glob_dyn);
+  free(lok_dyn);
+  }
+	//wylistowanie zmiennych
+  printf("-------------------------------\n");
+	printf("globalna statyczna = %d\n", glob_stat);
+	printf("globalna dynamiczna = %d\n", glob_dyn[0]);
+	printf("lokalna statyczna = %d\n", lok_stat);
+	printf("lokalna dynamiczna = %d\n", lok_dyn[0]);
 	return 0;
 }

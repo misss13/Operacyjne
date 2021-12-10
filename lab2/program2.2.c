@@ -15,7 +15,7 @@ void sygnaly_ne(int sig){
 
 int main (){
 	int i;
-	for ( i=1; i<64; i++ ){
+	for ( i=1; i<=64; i++ ){
 	if(signal(i, sygnaly_ne) == SIG_ERR)
 		printf("SIG %d nie może być złapany\n", i);
 	}
