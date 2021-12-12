@@ -1,5 +1,5 @@
 import socket
-
+import time
 
 
 # create an ipv4 (AF_INET) socket object using the tcp protocol (SOCK_STREAM)
@@ -26,4 +26,7 @@ response = client.recv(2048)
 response = response.decode()
 
 print(response)
+name = input()
+client.send(str.encode(name))
+
 client.close()
