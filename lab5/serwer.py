@@ -13,6 +13,7 @@ Slownik_hasel = {}
 
 MIN_UZYTKOWNIKOW = 2
 MAX_UZYTKOWNIKOW = 10
+NIESKONCZONOSC_POLACZEN = 100
 Ilosc_graczy = 0
 Slownik_nazwa_klient = {}
 Kolejka_graczy = []
@@ -26,7 +27,7 @@ try:
     ServerSocket.bind((host, port))
 except socket.error as e:
     print(str(e))
-ServerSocket.listen(MAX_UZYTKOWNIKOW)
+ServerSocket.listen(NIESKONCZONOSC_POLACZEN)
 
 def Update_Slownik_hasel():
     global Slownik_hasel
@@ -49,6 +50,10 @@ def Rozlacz_ladnie(client, nazwa):
 def Polacz_ladnie(client, nazwa):
     """Dodawanie bierzacych uzytkowikow do ich listy"""
     Slownik_nazwa_klient[nazwa]=client
+
+
+def Czy_juz(client):
+    """Funkcja zwraca True/False jesli zaczęła się gra dla danego klienta"""
 
 
 def Uwierzytelnienie(polaczenie):
@@ -89,13 +94,13 @@ def Uwierzytelnienie(polaczenie):
 def Obsluga_klienta(client, adres):
     """Obsluga_klienta(client) - nowy watek komunikuje sie z klientem"""
     global Ilosc_graczy
-    Ilosc_graczy +=1
+    global Kolejka_graczy
     czy_uwierzytelniony, nazwa_uzy = Uwierzytelnienie(client)
     if (czy_uwierzytelniony == False):
         client.close()
     else:
-        global Kolejka_graczy
-        Kolejka_graczy.append(nazwa_uzy)
+        Kolejka_graczy.append([nazwa_uzy,0])
+        Ilosc_graczy +=1
         #dodanie gracza do kolejki
 
         
@@ -105,11 +110,33 @@ def Obsluga_klienta(client, adres):
         time.sleep(100)
         Rozlacz_ladnie(client, nazwa_uzy)
 
-def Czasomierz():
-     """Oblicza czas między rundami oraz sprawdza ilosc graczy w kolejce - jeśli 10 rozpoczyna gre"""
 
-def Gra():
-    """dostaje liste 10 graczy z kolejki"""
+def Czasomierz():
+    """Oblicza czas między rundami oraz sprawdza ilosc graczy w kolejce - jeśli 10 rozpoczyna gre albo czas >"""
+    global Ilosc_graczy
+    global Kolejka_graczy
+    i=0
+    while True:
+        if (Ilosc_graczy <= 10) or (i>=150):
+            i=0
+            if(Ilosc_graczy <= 1):
+                continue
+            Bierzaca_gra_gracze = []
+            liczba_graczy = min(Ilosc_graczy, 10)
+            for j in range(liczba_graczy):
+                gracz = Kolejka_graczy.pop(0)
+                Bierzaca_gra_gracze.append(gracz)
+            Ilosc_graczy-=10
+            start_new_thread(Gra,(Bierzaca_gra_gracze, len(Bierzaca_gra_gracze)))
+        time.sleep(2)
+
+def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
+    """dostaje liste 10-2 graczy z kolejki"""
+    tablica_klientow = []
+    for i in range(Ilosc_graczy):
+        tablica_klientow.append(Slownik_nazwa_klient[Bierzaca_gra_gracze[i]])
+    tablica_klientow.shuffle()
+    
 
 if __name__=="__main__":
     print("Server up")
