@@ -26,7 +26,16 @@ response = client.recv(2048)
 response = response.decode()
 
 print(response)
+
+response = client.recv(2048)
+response = response.decode()
+
+print(response)
+
 name = input()
 client.send(str.encode(name))
 
+response = client.recv(2048)
+response = response.decode()
+print(response)
 client.close()

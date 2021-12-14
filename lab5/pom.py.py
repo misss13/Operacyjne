@@ -11,7 +11,6 @@ Slownik_hasel = {}
 #'123123':'96cae35ce8a9b0244178bf28e4966c2ce1b8385723a96a6b838858cdd6ca0a1e' #haslo 123123
 #'000001': 'a7fda0b61e2047f0f1057d1f5f064c272fd5d490961c531f4df64b0dd354683a' #haslo 000001
 
-ILOSC_RUND = 10
 MIN_UZYTKOWNIKOW = 2
 MAX_UZYTKOWNIKOW = 10
 NIESKONCZONOSC_POLACZEN = 100
@@ -19,8 +18,6 @@ Ilosc_graczy = 0
 Slownik_nazwa_klient = {}
 Kolejka_graczy = []
 Czas_do_rundy = 300 #5*60
-Slownik_slow = {}
-Slownik_punktow = {}
 
 """Słownik na hinty"""
 Slownik_hint = {
@@ -97,7 +94,7 @@ def Czy_w_slowniku(slowo: str):
 
 
 def Rozlacz_ladnie(client, nazwa):
-    """Rozlaczanie i usuwanie ze slownika uzytkowikow:klientow"""
+    """Rozlaczanie i usuwanie z listy bierzacych uzytkowikow"""
     Slownik_nazwa_klient.pop(nazwa)
     client.close()
 
@@ -142,37 +139,10 @@ def Uwierzytelnienie(polaczenie):
             return True, nazwa_uzy
 
 
-def Wprowadz_slowo(e, client):
-    """Sprawdza wprowadzone słowo od klienta"""
-    try:
-        slowo = client.recv(2048)
-        slowo = str(slowo.decode())
-        slowo = slowo.lower() 
-        return slowo
-    except:
-        print("blad przy przesylaniu slowa")
-        return ""
-
-
-def Wprowadz_dane(e, client):
-    """Sprawdza wprowadzone słowo od klienta"""
-    try:
-        p = time.time()
-        slowo = client.recv(2048)
-        slowo = str(slowo.decode())
-        slowo = slowo.lower()
-        k = time.time() 
-        return str(slowo) +":"+ str(k-p)
-    except:
-        print("blad przy przesylaniu slowa")
-        return str("0:11")
-
-
 def Obsluga_klienta(client, adres):
     """Obsluga_klienta(client) - nowy watek komunikuje sie z klientem"""
     global Ilosc_graczy
     global Kolejka_graczy
-    global Slownik_slow
 
     czy_uwierzytelniony, nazwa_uzy = Uwierzytelnienie(client)
     if (czy_uwierzytelniony == False):
@@ -180,62 +150,9 @@ def Obsluga_klienta(client, adres):
     else:
         Kolejka_graczy.append(nazwa_uzy)
         Ilosc_graczy +=1
-        Slownik_slow[nazwa_uzy] = ""
 
-        while(True):
-            if(Slownik_slow[nazwa_uzy] != ""):
-                break
-            time.sleep(2)
-        
-        #10 rund
-        for runda in range():
-            e = threading.Event()
-            t = ThreadWithReturnValue(target=Wprowadz_dane, args=(e,client))
-            t.start()
-            parse = t.join(10)
-            if parse != None:
-                if parse.count > 1:
-                    print("Jakis gamoń mi to chce popsuć - rozłączam")
-                    Slownik_slow.pop(nazwa_uzy)
-                    Rozlacz_ladnie(client, nazwa_uzy)
-                parse = parse.split(":")
-                wprowadzone_dane, czas = parse[0], parse[1]
-
-            if t.is_alive():
-                #jeszcze nie skonczono wpisywania <-> kończe wątek i wyrzucam gracza
-                e.set()
-                try:
-                    #rozlaczam po 10s 
-                    Slownik_slow.pop(nazwa_uzy)
-                    Rozlacz_ladnie(client, nazwa_uzy)
-                except:
-                    print("błąd w obsłudze klienta - rozlacz ladnie - rozłączony albo słownik wybuchł")
-            else:
-                #skonczono wpisywanie
-                if Wprowadz_dane == "0" and czas == "11":
-                    #nastąpił błąd w funkcji wprowadzania <-> rozłączam
-                    print("blad w funkcji Wprowadz_dane")
-                    Slownik_slow.pop(nazwa_uzy)
-                    Rozlacz_ladnie(client, nazwa_uzy)
-
-                if int(czas) > 2:
-                    #odpowiedz po 2s
-                    try:
-                        client.send(str.encode("#"))
-                        continue
-                    except:
-                        #klient rozłączony <-> rozłączam go
-                        Slownik_slow.pop(nazwa_uzy)
-                        Rozlacz_ladnie(client, nazwa_uzy)
-                
-                if "=" in wprowadzone_dane:
-                    #zgadywanie slowa
-                if "?" in wprowadzone_dane:
-                    #zgadywanie litery
-
-            ###TODO TUTAJ SKONCZULAM DZISIAJ ****
+        time.sleep(1000)
         #Koniec połączenia
-        Slownik_slow.pop(nazwa_uzy)
         Rozlacz_ladnie(client, nazwa_uzy)
 
 
@@ -302,11 +219,20 @@ def Broadcast_hinta(tablica_klientow, hint: str):
     for klient in tablica_klientow:
         klient.send(str.encode(hint))        
 
+def Wprowadz_slowo(e, client):
+    """Sprawdza wprowadzone słowo od klienta"""
+    try:
+        slowo = client.recv(2048)
+        slowo = str(slowo.decode())
+        slowo = slowo.lower() 
+        return slowo
+    except:
+        print("blad przy przesylaniu slowa")
+        return ""
+
 
 def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
-    """dostaje liste 10-2 graczy z kolejki odsługuje wszystkich naraz a później się wyłącza"""
-    global Slownik_slow
-
+    """dostaje liste 10-2 graczy z kolejki"""
     tablica_klientow = []
     for i in range(Ilosc_w_grze):
         tablica_klientow.append(Slownik_nazwa_klient[Bierzaca_gra_gracze[i]])
@@ -364,13 +290,12 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
                 return False
             continue
     
-    #obsluga 10 rund po stronie klienta
+    print("Yooooo dziala")
+    #obsluga 10 rund
     hint = Przetlumacz_na_hinta(slowo)
-    print("Wybrano słowo: " + hint)
+    print(hint)
     Broadcast_hinta(tablica_klientow, hint)
-    print("Wysłano hint: " + hint)
-    for nazwa_uzy in Bierzaca_gra_gracze:
-        Slownik_slow[nazwa_uzy] = slowo
+
     
 if __name__=="__main__":
     print("Server up")

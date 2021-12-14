@@ -3,12 +3,12 @@ import time
 def szukacz1():
     f = open('slowa.txt', 'r')
     lines = f.read()
-    answer = lines.find('oiiiiiii')
+    answer = lines.find('yooooo')
     print(answer)
 
 def szukacz2():
     file = open('slowa.txt', 'r')
-    search_word = "oiiiiii"
+    search_word = "yoooooo"
     if(search_word in file.read()):
         print("word found")
     else:
