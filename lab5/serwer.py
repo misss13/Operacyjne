@@ -245,7 +245,7 @@ def Obsluga_klienta(client, adres):
                         print("błąd w obsłudze klienta - rozlacz ladnie - Wprowadz dane - rozłączony albo słownik wybuchł")
                         return False
                         
-                if int(czas) > 2:
+                if float(czas) > 2:
                     #odpowiedz po 2s
                     try:
                         client.send(str.encode("#\n"))
@@ -298,6 +298,7 @@ def Obsluga_klienta(client, adres):
                         try:
                             slowo_tymczasowe = slowo #je wysle uzytkownikowi
                             client.send(str.encode("=\n"))
+                            time.sleep(0.2)
                             Slownik_punktow[nazwa_uzy] += nie_odgadniete_literki.count(literka)
                             #wyrzucam wszystkie zgadniete literki
                             nie_odgadniete_literki = nie_odgadniete_literki.replace(literka, "")
