@@ -4,6 +4,22 @@ import threading
 import hashlib
 from typing import List, Type
 import time
+import re
+
+def funkcja():
+    while True:
+        print("yoo")
+        a = input()
+        if a == "a":
+            return True
+bb = funkcja()
+a="alohaaoiiii"
+print(a.count("a"))
+a = a.replace("a","1")
+a = a.replace(" ", "")
+print(re.sub(re.compile("[a-zA-Z2-9]"), '0', a))
+#print(a.replace(re.compile("[a-zA-Z2-9]"), "0", string))
+
 
 def Wprowadz_dane(e, cos):
     """Sprawdza wprowadzone słowo od klienta"""
@@ -51,3 +67,4 @@ else:
     #skonczono wpisywanie
     print(type(wprowadzone_dane))
     print(type(czas))
+
