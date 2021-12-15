@@ -26,7 +26,8 @@ Slownik_punktow_plik = {}
 
 """Słownik na hinty"""
 Slownik_hint = {
-    'ą':2,
+    'a':1,
+    'ą':1,
     'b':3,
     'c':1,
     'ć':1,
@@ -100,8 +101,14 @@ def Czy_w_slowniku(slowo: str):
 
 def Rozlacz_ladnie(client, nazwa):
     """Rozlaczanie i usuwanie ze slownika uzytkowikow:klientow"""
-    Slownik_nazwa_klient.pop(nazwa)
-    client.close()
+    try:
+        Slownik_nazwa_klient.pop(nazwa)
+    except:
+        print("Niematakiego usera")
+    try:
+        client.close()
+    except:
+        print("połączenie zakończono")
 
 
 def Polacz_ladnie(client, nazwa):
@@ -202,7 +209,7 @@ def Obsluga_klienta(client, adres):
             parse = t.join(10)
             if parse != None:
                 #ktos wyslal stringa z wiecej niz jednym znakiem :
-                if parse.count > 1:
+                if parse.count(":") > 1:
                     print("Jakis gamoń mi to chce popsuć - rozłączam")
                     try:
                         Slownik_slow.pop(nazwa_uzy)
@@ -283,7 +290,7 @@ def Obsluga_klienta(client, adres):
                                 print("Boze ile bledow")
                             return False
 
-                elif "?" == wprowadzone_dane[0]:
+                elif "+" == wprowadzone_dane[0]:
                     #zgadywanie litery
                     literka = wprowadzone_dane[1]
                     if literka in nie_odgadniete_literki:
@@ -296,7 +303,7 @@ def Obsluga_klienta(client, adres):
                             nie_odgadniete_literki = nie_odgadniete_literki.replace(literka, "")
                             #zamiana na 0/1 ciąg 1-zgadnieta literka reszte rzeczy wyrzucam ze stringa
                             slowo_tymczasowe = slowo_tymczasowe.replace(literka, "1")
-                            slowo_tymczasowe = re.sub(re.compile("[a-zA-Z2-9]"), '0', slowo_tymczasowe)
+                            slowo_tymczasowe = re.sub(re.compile("[a-z2-9ęóąśłżźćń]"), '0', slowo_tymczasowe)
                             #jak klient wysle jakis syf (np.: +_=-!@$@$#%^$%)to jego problem
                             client.send(str.encode(str(slowo_tymczasowe)+"\n"))
                             continue
@@ -443,8 +450,8 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
             e = threading.Event()
             t = ThreadWithReturnValue(target=Wprowadz_slowo, args=(e,tablica_klientow[0]))
             t.start()
-            slowo = t.join(6)
-            #czekaj 6 sekund
+            slowo = t.join(2)
+            #czekaj 2 sekundy
             
             if t.is_alive():
                 #jeszcze nie skonczono wpisywania <-> kończe wątek i wyrzucam gracza
