@@ -16,16 +16,18 @@ ILOSC_RUND = 10
 MIN_UZYTKOWNIKOW = 2
 MAX_UZYTKOWNIKOW = 10
 NIESKONCZONOSC_POLACZEN = 100
+CZAS_NA_WPROWADZENIE_SLOWA = 6 #mabyc 2
 Ilosc_graczy = 0
 Slownik_nazwa_klient = {}
 Kolejka_graczy = []
-Czas_do_rundy = 300 #5*60
+Czas_do_rundy = 30 #5*60 #TODO
 Slownik_slow = {}
 Slownik_punktow = {}
 Slownik_punktow_plik = {}
+Slownik_czy_slowo_zgadniete = {}  #TODO
 
 """Słownik na hinty"""
-Slownik_hint = {
+Slownik_hint = { #TODO przepisac nowa liste
     'a':1,
     'ą':1,
     'b':3,
@@ -35,8 +37,8 @@ Slownik_hint = {
     'e':1,
     'ę':1,
     'f':4,
-    'g':3,
-    'h':2,
+    'g':2,
+    'h':3,
     'i':1,
     'j':2,
     'k':3,
@@ -48,12 +50,15 @@ Slownik_hint = {
     'o':1,
     'ó':1,
     'p':2,
+    'q':2,
     'r':1,
     's':1,
     'ś':1,
     't':3,
     'u':1,
+    'v':1,
     'w':1,
+    'x':1,
     'y':2,
     'z':1,
     'ź':1,
@@ -61,8 +66,8 @@ Slownik_hint = {
 }
 
 ServerSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM) 
-host = '127.0.0.1' #IP SERWERA
-port = 12345 #PORT
+host = '136.243.156.120' #IP SERWERA
+port = 12186 #PORT
 try:
     ServerSocket.bind((host, port))
 except socket.error as e:
@@ -84,7 +89,6 @@ class ThreadWithReturnValue(threading.Thread):
         return self._return
 
 
-
 def Update_Slownik_hasel():
     global Slownik_hasel
     Slownik_hasel = json.load(open("shadow.txt"))
@@ -94,8 +98,10 @@ def Czy_w_slowniku(slowo: str):
     """Czy_w_slowniku(str) - zwraca True jesli w slowniku występuje podane słowo w przeciwnym wypadku"""
     file = open('slowa.txt', 'r')
     if(slowo in file.read()):
+        file.close()
         return True
     else:
+        file.close()
         return False
 
 
@@ -121,12 +127,14 @@ def Uwierzytelnienie(polaczenie):
     try:
         nazwa_uzy = polaczenie.recv(2048)
         nazwa_uzy = str(nazwa_uzy.decode())
+        nazwa_uzy = nazwa_uzy.rstrip()
     except error:
         print("Uwierzytelnienie -nazwa- blad z decode() albo polaczeniem - zakanczam je")
         return False, "none"
     try:
         haslo_uzy = polaczenie.recv(2048)
         haslo_uzy = haslo_uzy.decode()
+        haslo_uzy = haslo_uzy.rstrip()
     except:
         print("Uwierzytelnienie -haslo- blad z decode() albo polaczeniem - zakanczam je")
         return False, nazwa_uzy
@@ -147,7 +155,7 @@ def Uwierzytelnienie(polaczenie):
         else:
 
             Polacz_ladnie(polaczenie, nazwa_uzy)
-            polaczenie.send(str.encode('+\n'))
+            polaczenie.send(str.encode('+1\n'))
             return True, nazwa_uzy
 
 
@@ -218,6 +226,7 @@ def Obsluga_klienta(client, adres):
                     except:
                         print("błąd w obsłudze klienta - rozlacz ladnie")
                     return False
+                parse = parse.rstrip()
                 parse = parse.split(":")
                 wprowadzone_dane, czas = parse[0], parse[1]
 
@@ -256,7 +265,7 @@ def Obsluga_klienta(client, adres):
                         Rozlacz_ladnie(client, nazwa_uzy)
                         return False
                 
-                if "=" == wprowadzone_dane[0]:
+                if (len(wprowadzone_dane)>=2) and ("=" == wprowadzone_dane[0]):
                     #zgadywanie slowa
                     if slowo == wprowadzone_dane[1:]:
                         #slowo zgadniete
@@ -290,7 +299,7 @@ def Obsluga_klienta(client, adres):
                                 print("Boze ile bledow")
                             return False
 
-                elif "+" == wprowadzone_dane[0]:
+                elif (len(wprowadzone_dane)>=2) and ("+" == wprowadzone_dane[0]):
                     #zgadywanie litery
                     literka = wprowadzone_dane[1]
                     if literka in nie_odgadniete_literki:
@@ -357,6 +366,12 @@ def Obsluga_klienta(client, adres):
 def Rozlacz_reszte(Tablica_klientow, Bierzaca_gra_gracze):
     """Po zakonczeniu gry rozlaczam pozostałych klientow"""
     b = len(Bierzaca_gra_gracze)
+    try:
+        for kli in Tablica_klientow:
+            kli.send(str.encode("?\n"))
+    except:
+        print("bład w wyrzucaniu znajacego slowo")
+
     for i in range(b):
         Rozlacz_ladnie(Tablica_klientow[0], Bierzaca_gra_gracze[0])
         Tablica_klientow.remove(Tablica_klientow[0])
@@ -365,6 +380,10 @@ def Rozlacz_reszte(Tablica_klientow, Bierzaca_gra_gracze):
 
 def Rozlacz_jednego(tablica_klientow, Bierzaca_gra_gracze):
     """Rozłączam jednego klienta w kolejce w bierzącej grze pierwszego"""
+    try:
+        tablica_klientow[0].send(str.encode("?\n"))
+    except:
+        print("bład w wyrzucaniu znajacego slowo")
     Rozlacz_ladnie(tablica_klientow[0], Bierzaca_gra_gracze[0])
     tablica_klientow.remove(tablica_klientow[0])
     Bierzaca_gra_gracze.remove(Bierzaca_gra_gracze[0])
@@ -381,11 +400,11 @@ def Czasomierz():
     print("|################|")
     i=0
     ile_razy_kratka = 1
-    trwanie_do_rundy = Czas_do_rundy / 2
-
+    trwanie_do_rundy = round(Czas_do_rundy / 2)
+    animacja = round(Czas_do_rundy/30)
     while True:
         #rysowanie pasku ładowania do kolejnej gry (jesli zbierze sie odp ilosc graczy)
-        if i%10 == 0:
+        if i%animacja == 0:
             print("|" + "#"*ile_razy_kratka + (16-ile_razy_kratka)*" " + "|")
             ile_razy_kratka += 1
 
@@ -417,7 +436,7 @@ def Przetlumacz_na_hinta(slowo: str):
 def Broadcast_hinta(tablica_klientow, hint: str):
     """Wysyłanie do wszystkich wiadomości z hasłem"""
     for klient in tablica_klientow:
-        klient.send(str.encode(hint)) #niewiem czy ma byc koniec linii  
+        klient.send(str.encode(hint + "\n")) #niewiem czy ma byc koniec linii  
 
 
 def Wez_slownik_punkty():
@@ -451,8 +470,8 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
             e = threading.Event()
             t = ThreadWithReturnValue(target=Wprowadz_slowo, args=(e,tablica_klientow[0]))
             t.start()
-            slowo = t.join(2)
-            #czekaj 2 sekundy
+            slowo = t.join(CZAS_NA_WPROWADZENIE_SLOWA)
+            slowo = slowo.rstrip()
             
             if t.is_alive():
                 #jeszcze nie skonczono wpisywania <-> kończe wątek i wyrzucam gracza
@@ -470,7 +489,7 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
                     #puste slowo albo brak w słowniku <-> wyrzucam gracza
                     Rozlacz_jednego(tablica_klientow, Bierzaca_gra_gracze)
                     Ilosc_w_grze -= 1
-                    if Ilosc_w_grze <= 1:
+                    if Ilosc_w_grze < 1:
                         Rozlacz_reszte(tablica_klientow, Bierzaca_gra_gracze)
                         print("W grze jeden gracz - rozłączam")
                         return False
@@ -497,7 +516,6 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
             continue
     
     hint = Przetlumacz_na_hinta(slowo)
-    print("Wybrano słowo: " + hint)
     Broadcast_hinta(tablica_klientow, hint)
     print("Wysłano hint: " + hint)
 
@@ -520,7 +538,7 @@ if __name__=="__main__":
     start_new_thread(Czasomierz,())
     while True:
         client, adres = ServerSocket.accept()
-        print (adres[0] + " connected")
+        print (adres[0] + " połączony")
         start_new_thread(Obsluga_klienta,(client, adres))
         time.sleep(2)
 client.close()
