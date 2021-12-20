@@ -1,0 +1,7 @@
+[20-12-2021_03:27:42] Zaczęto grę o id: 0
+[20-12-2021_03:27:42] Dodano gracza: 1
+[20-12-2021_03:27:42] Dodano gracza: 2
+[20-12-2021_03:27:42] Dodano gracza: 3
+[20-12-2021_03:27:42] Dodano gracza: 4
+[20-12-2021_03:27:42] Gracz wybierający słowo: <socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 12345), raddr=('127.0.0.1', 41556)>
+[20-12-2021_03:27:48] W grze jeden gracz - nie ustalono slowa - rozłączam

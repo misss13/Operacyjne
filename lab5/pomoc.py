@@ -6,6 +6,8 @@ from typing import List, Type
 import time
 import re
 
+a = [''] * 5
+print(a)
 def funkcja():
     while True:
         print("yoo")
@@ -66,5 +68,5 @@ if t.is_alive():
 else:
     #skonczono wpisywanie
     print(type(wprowadzone_dane))
-    print(type(czas))
+    print(float(czas))
 
