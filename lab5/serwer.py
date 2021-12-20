@@ -8,6 +8,7 @@ import json
 import re
 import os
 from datetime import datetime
+import configparser
 
 Slownik_hasel = {}
 """Hasła trzymane są w shadow.txt w postaci hashy"""
@@ -43,6 +44,40 @@ def Czy_zgadnieto_slowo(id_gry):
     except:
         print("Brak gry o podanym id, albo slownik wybuchł")
         return (-1)
+
+
+def Prasowanie():
+    """Co kilka s aktualizowana jest zawartosc ustawien"""
+    global ILOSC_RUND
+    global Czas_do_rundy
+    global CZAS_NA_WPROWADZENIE_SLOWA
+    global MAX_UZYTKOWNIKOW
+    global Slownik_logow
+    global Slownik_gier
+    global Slownik_punktow
+
+    config = configparser.ConfigParser()
+    config.read('ustawienia.ini')
+    try:
+        ILOSC_RUND = int(config['serwer']['ilosc_rund'])
+        Czas_do_rundy = int(config['serwer']['czas_do_rundy'])
+        CZAS_NA_WPROWADZENIE_SLOWA = int(config['serwer']['czas_na_slowo'])
+        MAX_UZYTKOWNIKOW = int(config['serwer']['max_uzytkownikow'])
+        czyszczacz = int(config['serwer']['czyszczacz'])
+        uzytkownik = int(config['serwer']['uzytkownik'])
+    except:
+        print("Błąd w parsowaniu")
+        return False
+    if czyszczacz == 1: #czysci pamiec
+        Slownik_logow = {}
+        Slownik_gier = {}
+
+    if uzytkownik != 0: #usuwanie komus punktow o wielkosc uzytkownik_usuwanie
+        try:
+            Slownik_punktow[uzytkownik] = 0
+        except:
+            print("błąd w usuwaniu punktów")
+
 
 
 def Zapisz_logi_gry(id_gry):
@@ -255,6 +290,7 @@ def Obsluga_klienta(client, adres):
     global Slownik_nazwa_gra
     global Slownik_gier
     global Slownik_logow
+    global ILOSC_RUND
 
     czy_uwierzytelniony, nazwa_uzy = Uwierzytelnienie(client)
     if (czy_uwierzytelniony == False):
@@ -278,7 +314,7 @@ def Obsluga_klienta(client, adres):
         slowo = Slownik_slow[nazwa_uzy]
         nie_odgadniete_literki = slowo
         #10 rund
-        for runda in range(10):
+        for runda in range(ILOSC_RUND):
             e = threading.Event()
             t = ThreadWithReturnValue(target=Wprowadz_dane, args=(e,client))
             t.start()
@@ -293,12 +329,10 @@ def Obsluga_klienta(client, adres):
                     except:
                         print("błąd w obsłudze klienta - rozlacz ladnie")
                     return False
-                print(parse)
                 parse = parse.rstrip()
                 parse = parse.replace("\n","")
                 parse = parse.split(":")
                 wprowadzone_dane, czas = parse[0], parse[1]
-                print(wprowadzone_dane)
             if t.is_alive():
                 #jeszcze nie skonczono wpisywania <-> kończe wątek i wyrzucam gracza
                 e.set()
@@ -490,6 +524,9 @@ def Czasomierz():
     trwanie_do_rundy = round(Czas_do_rundy / 2)
     animacja = round(Czas_do_rundy/30)
     while True:
+        Prasowanie()
+        trwanie_do_rundy = round(Czas_do_rundy / 2)
+        animacja = round(Czas_do_rundy/30)
         #rysowanie pasku ładowania do kolejnej gry (jesli zbierze sie odp ilosc graczy)
         if i%animacja == 0:
             print("|" + "#"*ile_razy_kratka + (16-ile_razy_kratka)*" " + "|" + str(Ilosc_graczy))
