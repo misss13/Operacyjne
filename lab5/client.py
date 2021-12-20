@@ -138,11 +138,11 @@ while(True):
 		slowko = ""
 		znak = input("Podaj literke [+] [enter] [literka]/ slowo [=] [enter] [slowo]: ")
 		tresc = input()
-		if znak[0] == "+":
-			czy_litera = 1
+		if znak[0] == "+": 
+			czy_litera = 1 #literka
 			literka = tresc
 		else:
-			czy_litera = 0 #nie slowo
+			czy_litera = 0 #nie, slowo
 			slowko = tresc
 
 		try:
@@ -156,21 +156,30 @@ while(True):
 		if response == False:
 			print("Wystąpił błąd")
 			break
+		
+		if response == "":
+			#zostalam rozlaczona
+			break
 
 		if response[0] == "?":
 			#cos zle wyslalam serwerowi
 			Rozlacz_ladnie(client)
 			break
 		elif response[0] == "#":
-			print("Zostłeś zignorowany")
+			print("Zostłaś zignorowana")
 			continue
 		elif response[0] == "!":
-			#zla litera
+			#zle slowo
 			if czy_litera == 0:
 				print("Niepoprawne slowo!")
+
 			else:
+				#zla literka
+				alfabet_gra.remove(literka)
 				print("Niepoprawna litera!")
+				print(alfabet_gra)
 			continue
+
 		elif response[0] == '=':
 			if czy_litera == 0:
 				print("Poprawne slowo!")
@@ -235,5 +244,4 @@ while(True):
 			break
 
 	continue
-
 	client.close()

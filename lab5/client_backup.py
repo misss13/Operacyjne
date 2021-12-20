@@ -1,19 +1,9 @@
 import socket
 import time
-import random
-import sys
+from random import randrange
 
-
-if (len(sys.argv)-1) < 2:
-    print("python client.py [nr] [haslo]")
-
-a = (sys.argv)
-login = a[1]
-haslo = a[2]
-
-
-IP = '127.0.0.1' #'136.243.156.120' #IP SERWERA
-PORT = 12345 #12186 #PORT
+IP = '127.0.0.1'
+PORT = 12345
 
 """Slownik alfabetu"""
 alfabet = ['a', 'ą', 'b', 'c', 'ć', 'd', 'e','ę', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'ł', 'm', 'n', 'ń', 'o', 'ó', 'p', 'q', 'r', 's', 'ś', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'ż', 'ź']
@@ -50,12 +40,13 @@ def Otrzymaj(client):
 
 def Rozlacz_ladnie(client):
 	"""Rozłącz klienta"""
+	time.sleep(2)
 	client.close()
 
 def Zgadnij_slowo():
 	"""Funkcja zwraca dowolne słowo"""
 	file = open('slowa.txt', 'r')
-	a = random.randrange(200)
+	a = randrange(200)
 	i=0
 	lines = file.readlines()
 	for i, slowo in enumerate(lines):
@@ -67,9 +58,11 @@ def Zgadnij_slowo():
 def Zgadnij_literke():
 	global alfabet
 	"""Funckja zwraca literke"""
-	a = random.randrange(34)
+	a = randrange(35)
 	return alfabet[a]
 
+print(Zgadnij_slowo())
+print(Zgadnij_literke())
 while(True):
 	slowa_zgadywane = []
 	alfabet_gra = alfabet
@@ -79,15 +72,15 @@ while(True):
 	client.connect((IP, PORT))
 
 	#logowanie
-	index = login
+	index = input("Podaj nr indexu: ")
 	try:	
 		client.send(str.encode(index+"\n"))
 	except:
 		#klient chyba się rozłączył dla pewności rozłączam
 		Rozlacz_ladnie(client)
 		continue
-	haslo = haslo
-	time.sleep(0.4)
+	
+	haslo = input("Podaj hasło: ")
 	try:
 		client.send(str.encode(haslo+"\n"))
 	except:
@@ -114,7 +107,7 @@ while(True):
 	
 	if response == "@":
 		#Jeśli gracz będzie wybierał słowo
-		slowo_do_wisielca = Zgadnij_slowo()
+		slowo_do_wisielca = input("Podaj słowo które pozostali muszą zgadnąć: ")
 		try:
 			client.send(str.encode(slowo_do_wisielca + "\n"))
 			response = Otrzymaj(client)
@@ -137,23 +130,21 @@ while(True):
 			print(response)
 			print(slowa_zgadywane)
 	
+#TODO
 	#zgadywanie słowa w 10 rundach
 	for i in range(10):
 		print("Runda: %d" %i)
 		literka = ""
 		slowko = ""
-		bool(random.getrandbits(1))
-		znak = bool(random.getrandbits(1))
-		if znak == 1: 
-			czy_litera = 1 #literka
-			literka = Zgadnij_literke()
-			tresc = literka
-			znak = "+"
+		znak = input("Podaj literke [+] [enter] [literka]/ slowo [=] [enter] [slowo]: ")
+		tresc = input()
+		if znak[0] == "+":
+			czy_litera = 1
+			literka = tresc
 		else:
-			czy_litera = 0 #nie, slowo
-			slowko = Zgadnij_slowo()
-			znak = "="
-			tresc = slowko
+			czy_litera = 0 #nie slowo
+			slowko = tresc
+
 		try:
 			client.send(str.encode(znak + "\n" + tresc))
 		except:
@@ -165,30 +156,21 @@ while(True):
 		if response == False:
 			print("Wystąpił błąd")
 			break
-		
-		if response == "":
-			#zostalam rozlaczona
-			break
 
 		if response[0] == "?":
 			#cos zle wyslalam serwerowi
 			Rozlacz_ladnie(client)
 			break
 		elif response[0] == "#":
-			print("Zostłaś zignorowana")
+			print("Zostłeś zignorowany")
 			continue
 		elif response[0] == "!":
-			#zle slowo
+			#zla litera
 			if czy_litera == 0:
 				print("Niepoprawne slowo!")
-
 			else:
-				#zla literka
-				alfabet_gra.remove(literka)
 				print("Niepoprawna litera!")
-				print(alfabet_gra)
 			continue
-
 		elif response[0] == '=':
 			if czy_litera == 0:
 				print("Poprawne slowo!")
@@ -253,4 +235,5 @@ while(True):
 			break
 
 	continue
+
 	client.close()

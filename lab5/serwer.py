@@ -336,7 +336,7 @@ def Obsluga_klienta(client, adres):
             if t.is_alive():
                 #jeszcze nie skonczono wpisywania <-> kończe wątek i wyrzucam gracza
                 e.set()
-                Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " rozłączam minęło 10s\n"
+                Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " rozlaczam minęło 10s\n"
                 try:
                     #rozlaczam po 10s 
                     Rozlacz_ladnie(client, nazwa_uzy)
@@ -349,7 +349,7 @@ def Obsluga_klienta(client, adres):
                 #skonczono wpisywanie
                 if Wprowadz_dane == "0" and czas == "11":
                     #nastąpił błąd w funkcji wprowadzania <-> rozłączam
-                    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " błąd w funkcji wprowadz dane - rozłączam" +"\n"
+                    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " blad w funkcji wprowadz dane - rozlaczam" +"\n"
                     print("blad w funkcji Wprowadz_dane")
                     try:
                         Rozlacz_ladnie(client, nazwa_uzy)
@@ -383,10 +383,10 @@ def Obsluga_klienta(client, adres):
                             client.send(str.encode("?\n"))
                             Rozlacz_ladnie(client, nazwa_uzy)
                             Slownik_gier[id_gry] = 1 #zgadnięto słowo na koncu żeby klient nie otrzymal 2 razy tego samego
-                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " zgadł słowo - dostaje 5 punktów" +"\n"
+                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " zgadl slowo - dostaje 5 punktow" +"\n"
                             return True
                         except:
-                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ "blad - klient rozłączony\n"
+                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ "blad - klient rozlaczony\n"
                             print("Jakis blad przy zgadywaniu slowa")
                             try:
                                 Rozlacz_ladnie(client, nazwa_uzy)
@@ -395,12 +395,12 @@ def Obsluga_klienta(client, adres):
                             return False
                     else:
                         #niepoprawne słowo
-                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " nie zgadł słowa, wprowadził "+"\n"
+                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " nie zgadl slowa, wprowadzil "+"\n"
                         try:
                             client.send(str.encode("!\n"))
                             continue
                         except:
-                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ "blad - klient rozłączony\n"
+                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ "blad - klient rozlaczony\n"
                             print("Jakis blad przy zgadywaniu slowa - klient prawdopodobnie rozlaczony")
                             try:
                                 Rozlacz_ladnie(client, nazwa_uzy)
@@ -421,7 +421,7 @@ def Obsluga_klienta(client, adres):
                             client.send(str.encode("=\n"))
                             licznik_punktow = nie_odgadniete_literki.count(literka)
                             Slownik_punktow[nazwa_uzy] += licznik_punktow
-                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " odgadł literke: "+ literka+" dostał punktów: "+str(licznik_punktow)+"\n"
+                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " odgadl literke: "+ literka+" dostał punktow: "+str(licznik_punktow)+"\n"
                             #wyrzucam wszystkie zgadniete literki
                             nie_odgadniete_literki = nie_odgadniete_literki.replace(literka, "")
                             if nie_odgadniete_literki == "":
@@ -437,7 +437,7 @@ def Obsluga_klienta(client, adres):
                             client.send(str.encode(str(slowo_tymczasowe)+"\n"))
                             continue
                         except:
-                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ "blad - klient rozłączony\n"
+                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ "blad - klient rozlaczony\n"
                             print("Klient rozlaczony albo cos nei tak z moim regexem")
                             try:
                                 Rozlacz_ladnie(client, nazwa_uzy)
@@ -445,13 +445,13 @@ def Obsluga_klienta(client, adres):
                                 print("Boze ile bledow w literkach")
                             return False
                     else:
-                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " wybrał literke: "+ literka+ " nie dostał punktów\n"
+                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " wybral literke: "+ literka+ " nie dostal punktow\n"
                         #brak takiej literki (znaku/cyfry) jak ktos cos nieladnego wpisal w slowie
                         try:
                             client.send(str.encode("!\n"))
                             continue
                         except:
-                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ "blad - klient rozłączony\n"
+                            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ "blad - klient rozlaczony\n"
                             print("Jakis blad przy zgadywaniu slowa - klient prawdopodobnie rozlaczony")
                             try:
                                 Rozlacz_ladnie(client, nazwa_uzy)
@@ -461,7 +461,7 @@ def Obsluga_klienta(client, adres):
 
                 else:
                     #niespodziewana odpowiedz
-                    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " wprowadził niespodziewaną odpowiedź - rozłączam\n"
+                    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " wprowadzil niespodziewana odpowiedz - rozlaczam:"+ str(wprowadzone_dane)+"\n"
                     try:
                         client.send(str.encode("?\n"))
                         Rozlacz_ladnie(client, nazwa_uzy)
@@ -624,7 +624,7 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
     Numery_gier+=1
     
     Slownik_gier[id_gry] = 0 #zmiana po stronie grzcza TODO
-    Slownik_logow[id_gry] = "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Zaczęto grę o id: " + str(id_gry) +"\n"
+    Slownik_logow[id_gry] = "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Zaczeto gre o id: " + str(id_gry) +"\n"
     #klienci_gry
     tablica_klientow = []
     for i in range(Ilosc_w_grze):
@@ -635,7 +635,7 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
     for i in range(Ilosc_w_grze):
         try:
             tablica_klientow[0].send(str.encode("@\n"))
-            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz wybierający słowo: "+str(Bierzaca_gra_gracze[0] )+"\n"
+            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz wybierajacy slowo: "+str(Bierzaca_gra_gracze[0] )+"\n"
             e = threading.Event()
             t = ThreadWithReturnValue(target=Wprowadz_slowo, args=(e,tablica_klientow[0]))
             t.start()
@@ -649,7 +649,7 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
                 Ilosc_w_grze -= 1
                 if Ilosc_w_grze <= 1: # W grze nie może być jeden gracz bez slowa
                     print("W grze jeden gracz - rozłączam")
-                    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Po danym czasie nie wpisano słowa. W grze jeden gracz - rozłączam\n"
+                    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Po danym czasie nie wpisano slowa. W grze jeden gracz - rozlaczam\n"
                     Zapisz_logi_gry(id_gry)
                     Rozlacz_reszte(tablica_klientow, Bierzaca_gra_gracze)
                     return False
@@ -663,7 +663,7 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
                     if Ilosc_w_grze <= 1: # W grze nie może być jeden gracz bez slowa
                         Rozlacz_reszte(tablica_klientow, Bierzaca_gra_gracze)
                         print("W grze jeden gracz - rozłączam")
-                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Błąd w funkcji wpisywania słowa. W grze jeden gracz - rozłączam\n"
+                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Blad w funkcji wpisywania slowa. W grze jeden gracz - rozlaczam\n"
                         Zapisz_logi_gry(id_gry)
                         return False
                     continue
@@ -674,7 +674,7 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
                     Ilosc_w_grze -= 1
                     if Ilosc_w_grze <= 0:
                         print("W grze brak graczy - rozłączam")
-                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Wybrano słowo ale w grze brak graczy rozłączam\n"
+                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Wybrano slowo ale w grze brak graczy rozlaczam\n"
                         Zapisz_logi_gry(id_gry)
                         Rozlacz_reszte(tablica_klientow, Bierzaca_gra_gracze)
                         return False
@@ -682,7 +682,7 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
         except:
             #nie ustalono słowa jeden gracz w grze <-> zabijam grę
             print("błąd połączenia - rozłączam")
-            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "W grze jeden gracz - nie ustalono slowa - rozłączam\n"
+            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "W grze jeden gracz - nie ustalono slowa - rozlaczam\n"
             Zapisz_logi_gry(id_gry)
             Rozlacz_jednego(tablica_klientow, Bierzaca_gra_gracze)
             Ilosc_w_grze -= 1
@@ -691,9 +691,9 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
                 Rozlacz_reszte(tablica_klientow, Bierzaca_gra_gracze)
                 return False
             continue
-    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Wybrano słowo: "+ slowo +"\n"
+    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Wybrano slowo: "+ slowo +"\n"
     hint = Przetlumacz_na_hinta(slowo)
-    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " +"Przetłumaczone słowo: "+ hint +"\n"
+    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " +"Przetlumaczone slowo: "+ hint +"\n"
     Broadcast_hinta(tablica_klientow, hint)
     print("Wysłano hint: " + hint)
 
@@ -721,7 +721,7 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
     # Gra staje się zombie czeka 10s na zakończenie gier wszystkich graczy a nastepnie dokonuje operacji zapisu do pliku
     #Nieaktualne ^
     for nazwa_uzy in Slownik_punktow:
-        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gra dla "+str(nazwa_uzy)+" zakończona wynikiem: " + str(Slownik_punktow[nazwa_uzy]) +"\n"
+        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gra dla "+str(nazwa_uzy)+" zakonczona wynikiem: " + str(Slownik_punktow[nazwa_uzy]) +"\n"
     Zapisz_logi_gry(id_gry)
     
     Wez_slownik_punkty()
