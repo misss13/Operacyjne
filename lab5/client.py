@@ -2,8 +2,12 @@ import socket
 import time
 from random import randrange
 
-IP = '127.0.0.1'
-PORT = 12345
+"""IP = '127.0.0.1' #'136.243.156.120' #IP SERWERA
+PORT = 12345 #12186 #PORT
+"""
+
+IP = '136.243.156.120' #IP SERWERA '127.0.0.1' #'
+PORT = 12186 #PORT 12345 #
 
 """Slownik alfabetu"""
 alfabet = ['a', 'ą', 'b', 'c', 'ć', 'd', 'e','ę', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'ł', 'm', 'n', 'ń', 'o', 'ó', 'p', 'q', 'r', 's', 'ś', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'ż', 'ź']
@@ -101,7 +105,7 @@ while(True):
 		continue
 
 	response = Otrzymaj(client)
-	if Otrzymaj == False:
+	if response == False:
 		continue
 	print(response)
 	
@@ -146,7 +150,7 @@ while(True):
 			slowko = tresc
 
 		try:
-			client.send(str.encode(znak + "\n" + tresc))
+			client.send(str.encode(znak + "\n" + tresc+ "\n"))
 		except:
 			Rozlacz_ladnie(client)
 			break

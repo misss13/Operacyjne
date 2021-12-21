@@ -11,9 +11,11 @@ a = (sys.argv)
 login = a[1]
 haslo = a[2]
 
-
 IP = '127.0.0.1' #'136.243.156.120' #IP SERWERA
 PORT = 12345 #12186 #PORT
+
+"""IP = '136.243.156.120' #IP SERWERA '127.0.0.1' #'
+PORT = 12186 #PORT 12345 #"""
 
 """Slownik alfabetu"""
 alfabet = ['a', 'ą', 'b', 'c', 'ć', 'd', 'e','ę', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'ł', 'm', 'n', 'ń', 'o', 'ó', 'p', 'q', 'r', 's', 'ś', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'ż', 'ź']
@@ -67,7 +69,13 @@ def Zgadnij_slowo():
 def Zgadnij_literke():
 	global alfabet
 	"""Funckja zwraca literke"""
-	a = random.randrange(34)
+	a = 0
+	try:
+		a = random.randrange(34)
+		return alfabet[a]
+	except:
+		print(a)
+		a = 10
 	return alfabet[a]
 
 while(True):
@@ -87,7 +95,7 @@ while(True):
 		Rozlacz_ladnie(client)
 		continue
 	haslo = haslo
-	time.sleep(0.4)
+	time.sleep(0.05)
 	try:
 		client.send(str.encode(haslo+"\n"))
 	except:
@@ -96,7 +104,9 @@ while(True):
 		continue
 
 	# Czy zalogowano
+	
 	czy_zalogowano = Otrzymaj(client)
+	
 	if czy_zalogowano == False:
 		continue
 	print(czy_zalogowano)
@@ -108,15 +118,19 @@ while(True):
 		continue
 
 	response = Otrzymaj(client)
-	if Otrzymaj == False:
+	
+	if response == False:
 		continue
 	print(response)
 	
 	if response == "@":
 		#Jeśli gracz będzie wybierał słowo
 		slowo_do_wisielca = Zgadnij_slowo()
+		print(slowo_do_wisielca)
 		try:
+			time.sleep(0.05)
 			client.send(str.encode(slowo_do_wisielca + "\n"))
+			time.sleep(0.05)
 			response = Otrzymaj(client)
 			print(response)
 		except:
@@ -155,12 +169,14 @@ while(True):
 			znak = "="
 			tresc = slowko
 		try:
-			client.send(str.encode(znak + "\n" + tresc))
+			time.sleep(0.05)
+			client.send(str.encode(znak + "\n" + tresc + "\n"))
+			time.sleep(0.05)
 		except:
 			Rozlacz_ladnie(client)
 			break
-
 		response = Otrzymaj(client)
+
 		print(response)
 		if response == False:
 			print("Wystąpił błąd")
@@ -190,6 +206,7 @@ while(True):
 			continue
 
 		elif response[0] == '=':
+			time.sleep(0.05)
 			if czy_litera == 0:
 				print("Poprawne slowo!")
 				#punkty
@@ -207,6 +224,7 @@ while(True):
 				break
 			else:
 				print("Poprawna litera!")
+				
 				#hint - wysylanie liter
 				response = Otrzymaj(client)
 				if response == False:
@@ -217,10 +235,9 @@ while(True):
 					if(response[i] == "1"):
 						slowa_zgadywane[i] = literka
 				print(slowa_zgadywane)
-				for i in range(len(alfabet_gra)):
-					if alfabet_gra[i] == literka:
-						alfabet_gra.pop(i)
-						break
+				if literka in alfabet_gra:
+					alfabet_gra.remove(literka)
+					break
 				czy_koniec = 0 
 				for i in range(dlugosc_slowa):
 					if slowa_zgadywane[i] == "_":
@@ -230,6 +247,7 @@ while(True):
 					#tak
 					print("Poprawne slowo!")
 					#punkty
+
 					response = Otrzymaj(client)
 					if response == False:
 						break

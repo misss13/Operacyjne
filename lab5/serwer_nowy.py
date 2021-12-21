@@ -1,37 +1,64 @@
 import socket
-from _thread import *
 import threading
 import hashlib
-from typing import List
 import time
 import json
 import re
 import os
-from datetime import datetime
+import random
 import configparser
+from typing import List
+from _thread import *
+from datetime import datetime
+
 
 Slownik_hasel = {}
 """Hasła trzymane są w shadow.txt w postaci hashy"""
 #'123123':'96cae35ce8a9b0244178bf28e4966c2ce1b8385723a96a6b838858cdd6ca0a1e' #haslo 123123
 #'000001': 'a7fda0b61e2047f0f1057d1f5f064c272fd5d490961c531f4df64b0dd354683a' #haslo 000001
 
+
 ILOSC_RUND = 10
 MIN_UZYTKOWNIKOW = 2
 MAX_UZYTKOWNIKOW = 10
 NIESKONCZONOSC_POLACZEN = 100
-CZAS_NA_WPROWADZENIE_SLOWA = 6 #mabyc 2
+CZAS_NA_WPROWADZENIE_SLOWA = 6 #mabyc 2 #TODO usuwam
 Ilosc_graczy = 0
 Numery_gier = 0
 Slownik_nazwa_klient = {} #stałe
 Kolejka_graczy = []
 Kolejka_zapisu = []
-Czas_do_rundy = 30 #5*60 #TODO
+Czas_do_rundy = 30
 Slownik_slow = {}
 Slownik_punktow = {} #ilosc punktow rundy
 Slownik_punktow_plik = {} #z pliku ogólna ilosc punktow
 Slownik_gier = {} # id_gry:1 - zgadnieto slowo/ 0-niezgadnieto CZYSCIC!!!!!
 Slownik_logow = {} #id_gry:tresc CZYSIC!!!!!
 Slownik_nazwa_gra = {} #nazwa_uzy:id_gry stałe
+Lista_slow_do_losowania = [] #zawiera słowa losowane przez użytkowników
+
+
+def Zaladuj_slowa():
+    """Ładuje 5 lub więcej literowe słowa do tablicy Lista_slow_do_losowania, zabiera ok 200Mb ramu i trwa 4s"""
+    global Lista_slow_do_losowania
+
+    print("Rozpoczynam ładowanie słów do tablicy...")
+    with open("przykladowe.txt") as file:
+        while (line := file.readline().rstrip()):
+            if len(line) >= 5:
+                Lista_slow_do_losowania.append(line)
+    print("Zakonczono ładowanie słów do tablicy")
+
+
+def Losuj_slowo():
+    """Losuje slowo z tablicy Lista_slow_do_losowania"""
+    global Lista_slow_do_losowania
+
+    if len(Lista_slow_do_losowania) <= 1:
+        return False
+    else:
+        return random.choice(Lista_slow_do_losowania)
+
 
 def Czy_zgadnieto_slowo(id_gry):
     """Funkcja sprawdza czy w grze o podanym id zostało zgadnięte słowo. True - zgadnięto; False - nie; (-1) - błąd"""
@@ -97,6 +124,7 @@ def Zapisz_logi_gry(id_gry):
     except:
         print("Błąd przy zapisie - Zapisz_logi_gry")
         return False
+
 
 def Kolejka_graczy_json():
     """Parsuje kolejke bieżących graczy tak by można było ją zapisać do jsona. True - zapisano/False - nie"""
@@ -257,18 +285,6 @@ def Uwierzytelnienie(polaczenie):
             return True, nazwa_uzy
 
 
-def Wprowadz_slowo(e, client):
-    """Sprawdza wprowadzone słowo od klienta"""
-    try:
-        slowo = client.recv(2048)
-        slowo = str(slowo.decode())
-        slowo = slowo.lower() 
-        return slowo
-    except:
-        print("blad przy przesylaniu slowa")
-        return ""
-
-
 def Wprowadz_dane(e, client):
     """Sprawdza wprowadzone słowo od klienta"""
     try:
@@ -361,7 +377,7 @@ def Obsluga_klienta(client, adres):
                         print("błąd w obsłudze klienta - rozlacz ladnie - Wprowadz dane - rozłączony albo słownik wybuchł")
                         return False
                         
-                if float(czas) > 2:
+                if float(czas) > float(CZAS_NA_WPROWADZENIE_SLOWA):
                     #odpowiedz po 2s
                     Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz: " +str(nazwa_uzy)+ " odpowiedz po: "+ str(czas) +" ignoruje gracza"+"\n"
                     try:
@@ -483,35 +499,6 @@ def Obsluga_klienta(client, adres):
         return True
 
 
-def Rozlacz_reszte(Tablica_klientow, Bierzaca_gra_gracze):
-    """Po zakonczeniu gry rozlaczam pozostałych klientow"""
-    b = len(Bierzaca_gra_gracze)
-    try:
-        for kli in Tablica_klientow:
-            kli.send(str.encode("?\n"))
-    except:
-        print("bład w wyrzucaniu znajacego slowo")
-
-    for i in range(b):
-        Rozlacz_ladnie(Tablica_klientow[0], Bierzaca_gra_gracze[0])
-        try:
-            Tablica_klientow.remove(Tablica_klientow[0])
-            Bierzaca_gra_gracze.remove(Bierzaca_gra_gracze[0])
-        except:
-            continue
-
-
-def Rozlacz_jednego(tablica_klientow, Bierzaca_gra_gracze):
-    """Rozłączam jednego klienta w kolejce w bierzącej grze pierwszego"""
-    try:
-        tablica_klientow[0].send(str.encode("?\n"))
-    except:
-        print("bład w wyrzucaniu znajacego slowo")
-    Rozlacz_ladnie(tablica_klientow[0], Bierzaca_gra_gracze[0])
-    tablica_klientow.remove(tablica_klientow[0])
-    Bierzaca_gra_gracze.remove(Bierzaca_gra_gracze[0])
-
-
 def Czasomierz():
     """Oblicza czas między rundami oraz sprawdza ilosc graczy w kolejce - jeśli 10 rozpoczyna gre albo czas"""
     global Ilosc_graczy
@@ -590,7 +577,7 @@ def Broadcast_punktow(Bierzaca_gra_gracze):
             print("błąd - Broadcast_punktow ")
             continue
 
-
+    
 def Wez_slownik_punkty():
     """Bierze aktualne wyniki z pliku"""
     global Slownik_punktow_plik
@@ -634,66 +621,9 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
         tablica_klientow.append(Slownik_nazwa_klient[Bierzaca_gra_gracze[i]])
         Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Dodano gracza: " + str(Bierzaca_gra_gracze[i]) +"\n"
 
-    #wybieramy wg kolejnosci użytkownika <-> WPROWADZENIE SŁOWA
-    for i in range(Ilosc_w_grze):
-        try:
-            tablica_klientow[0].send(str.encode("@\n"))
-            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Gracz wybierajacy slowo: "+str(Bierzaca_gra_gracze[0] )+"\n"
-            e = threading.Event()
-            t = ThreadWithReturnValue(target=Wprowadz_slowo, args=(e,tablica_klientow[0]))
-            t.start()
-            slowo = t.join(CZAS_NA_WPROWADZENIE_SLOWA)
-            slowo = slowo.rstrip()
-            
-            if t.is_alive():
-                #jeszcze nie skonczono wpisywania <-> kończe wątek i wyrzucam gracza
-                e.set()
-                Rozlacz_jednego(tablica_klientow, Bierzaca_gra_gracze)
-                Ilosc_w_grze -= 1
-                if Ilosc_w_grze <= 1: # W grze nie może być jeden gracz bez slowa
-                    print("W grze jeden gracz - rozłączam")
-                    Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Po danym czasie nie wpisano slowa. W grze jeden gracz - rozlaczam\n"
-                    Zapisz_logi_gry(id_gry)
-                    Rozlacz_reszte(tablica_klientow, Bierzaca_gra_gracze)
-                    return False
-                continue
-            else:
-                #skonczono wpisywanie
-                if (slowo == "") or (Czy_w_slowniku(slowo) == False):
-                    #puste slowo albo brak w słowniku <-> wyrzucam gracza
-                    Rozlacz_jednego(tablica_klientow, Bierzaca_gra_gracze)
-                    Ilosc_w_grze -= 1
-                    if Ilosc_w_grze <= 1: # W grze nie może być jeden gracz bez slowa
-                        Rozlacz_reszte(tablica_klientow, Bierzaca_gra_gracze)
-                        print("W grze jeden gracz - rozłączam")
-                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Blad w funkcji wpisywania slowa. W grze jeden gracz - rozlaczam\n"
-                        Zapisz_logi_gry(id_gry)
-                        return False
-                    continue
-                else:
-                    #poprawne słowo <-> usuwam użytkownika ktory zna słowo
-                    print("Wybrano slowo: %s" %(slowo))
-                    Rozlacz_jednego(tablica_klientow, Bierzaca_gra_gracze)
-                    Ilosc_w_grze -= 1
-                    if Ilosc_w_grze <= 0:
-                        print("W grze brak graczy - rozłączam")
-                        Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Wybrano slowo ale w grze brak graczy rozlaczam\n"
-                        Zapisz_logi_gry(id_gry)
-                        Rozlacz_reszte(tablica_klientow, Bierzaca_gra_gracze)
-                        return False
-            break
-        except:
-            #nie ustalono słowa jeden gracz w grze <-> zabijam grę
-            print("błąd połączenia - rozłączam")
-            Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "W grze jeden gracz - nie ustalono slowa - rozlaczam\n"
-            Zapisz_logi_gry(id_gry)
-            Rozlacz_jednego(tablica_klientow, Bierzaca_gra_gracze)
-            Ilosc_w_grze -= 1
-            if Ilosc_w_grze <= 1:
-                print("W grze jeden gracz - rozłączam")
-                Rozlacz_reszte(tablica_klientow, Bierzaca_gra_gracze)
-                return False
-            continue
+    #Wybranie Słowa
+    slowo = Losuj_slowo()
+    print("Wybrano słowo: " + slowo)
     Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " + "Wybrano slowo: "+ slowo +"\n"
     hint = Przetlumacz_na_hinta(slowo)
     Slownik_logow[id_gry] += "["+ datetime.now().strftime("%d-%m-%Y_%H:%M:%S") + "] " +"Przetlumaczone slowo: "+ hint +"\n"
@@ -742,6 +672,7 @@ def Gra(Bierzaca_gra_gracze, Ilosc_w_grze):
 
 if __name__=="__main__":
     print("Server up")
+    Zaladuj_slowa()
     start_new_thread(Czasomierz,())
     while True:
         client, adres = ServerSocket.accept()

@@ -2,8 +2,11 @@ import socket
 import time
 from random import randrange
 
-IP = '127.0.0.1'
-PORT = 12345
+"""IP = '127.0.0.1'
+PORT = 12345"""
+
+IP = '136.243.156.120' #IP SERWERA '127.0.0.1' #'
+PORT = 12186 #PORT 12345 #
 
 """Slownik alfabetu"""
 alfabet = ['a', 'ą', 'b', 'c', 'ć', 'd', 'e','ę', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'ł', 'm', 'n', 'ń', 'o', 'ó', 'p', 'q', 'r', 's', 'ś', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'ż', 'ź']
